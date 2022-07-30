@@ -7,14 +7,10 @@
 #include "MultiSocketDemo.h"
 #include "MultiSocketDemoDlg.h"
 #include "afxdialogex.h"
-#include "SocketCtrl.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-
-
-// 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
 class CAboutDlg : public CDialogEx
 {
@@ -37,31 +33,23 @@ protected:
 CAboutDlg::CAboutDlg() : CDialogEx(IDD_ABOUTBOX)
 {
 }
-
 void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 }
-
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 END_MESSAGE_MAP()
-
-
-// CMultiSocketDemoDlg 对话框
-
-
 
 CMultiSocketDemoDlg::CMultiSocketDemoDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_MULTISOCKETDEMO_DIALOG, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
-
 void CMultiSocketDemoDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_LIST_DISPLAY, m_listLogDisplay);
 }
-
 BEGIN_MESSAGE_MAP(CMultiSocketDemoDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
@@ -70,9 +58,6 @@ BEGIN_MESSAGE_MAP(CMultiSocketDemoDlg, CDialogEx)
 
 	ON_MESSAGE(WM_RECVSOCKDATA, OnSocketRecv)
 END_MESSAGE_MAP()
-
-
-// CMultiSocketDemoDlg 消息处理程序
 
 BOOL CMultiSocketDemoDlg::OnInitDialog()
 {
@@ -107,7 +92,6 @@ BOOL CMultiSocketDemoDlg::OnInitDialog()
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
-
 void CMultiSocketDemoDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
 	if ((nID & 0xFFF0) == IDM_ABOUTBOX)
@@ -157,19 +141,17 @@ HCURSOR CMultiSocketDemoDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-
-
 void CMultiSocketDemoDlg::OnBnClickedBtnRun()
 {
-	SetDlgItemText(IDC_ED_DISPLAY, _T("服务器已启动"));
-	SocketCtrl sockServer;
-	HWND hWnd = this->GetSafeHwnd();
-	sockServer.InitServer(this->GetSafeHwnd(),_T("127.0.0.1"),9001);
+	m_listLogDisplay.InsertString(0, _T("服务器已启动"));
+	m_sockServer.InitServer(this->GetSafeHwnd(),_T("127.0.0.1"),9001);
 }
 
 LRESULT CMultiSocketDemoDlg::OnSocketRecv(WPARAM wParam, LPARAM lParam)
 {
 	CString strRecv((char*)lParam);
-	SetDlgItemText(IDC_ED_DISPLAY, _T("客户端发来数据:")+ strRecv);
+	CString strFormatTime(m_sockServer.m_sysTimeStamp.GetFormatNowTime().c_str());
+	m_listLogDisplay.InsertString(0, strFormatTime+_T("客户端发来数据:") + strRecv);
+	m_sockServer.ClearRecvBuff();
 	return 1;
 }

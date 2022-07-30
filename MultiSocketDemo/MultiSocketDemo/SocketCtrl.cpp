@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "SocketCtrl.h"
 #include <afxwin.h>
+#include "SysTimeStamp.h"
+#include <vcruntime_string.h>
 
 HWND m_hParentWnd;
 
@@ -15,6 +17,8 @@ SocketCtrl::~SocketCtrl()
 
 void SocketCtrl::InitServer(HWND hParentWnd,CString strIp,int nPort)
 {
+	ClearRecvBuff();
+
 	m_hParentWnd = hParentWnd;
 	m_strServerIp = strIp;
 	m_nServerPort = nPort;
@@ -48,7 +52,7 @@ void SocketCtrl::ReceiveAccept()
 	int nSize = sizeof(SOCKADDR);
 	m_sockListen = accept(m_sockServer, (SOCKADDR*)&clntAddr, &nSize);
 
-	char recvBuffer[256] = {0};
+	
 	CString strDefaultMsg = _T("server:Welcome to connect !");
 	int resSend = send(m_sockListen, (LPSTR)(LPCTSTR)strDefaultMsg, strDefaultMsg.GetLength(), 0);
 
@@ -59,17 +63,18 @@ void SocketCtrl::ReceiveAccept()
 			break;
 		}
 
-		int recvLen = recv(m_sockListen, recvBuffer, sizeof(recvBuffer), 0);
-		if (0 == recvLen)
-		{
-			break;
-		}
-		else if (recvLen < 0)
-		{
-			break;
-		}
+		int recvLen = recv(m_sockListen, m_szRecvBuff, 256, 0);
+		if (recvLen < 0 || recvLen == 0)
+			continue;
+
+		
+		CString strTimeStamp;
+		strTimeStamp.Format(_T("时间戳(纳秒):%lld"), m_sysTimeStamp.GetNowTime());
+		//AfxMessageBox(strTimeStamp);
+
+
 		//发送消息
-		PostMessage(m_hParentWnd, WM_RECVSOCKDATA, TRUE, (LPARAM)&recvBuffer);
+		PostMessage(m_hParentWnd, WM_RECVSOCKDATA, TRUE, (LPARAM)&m_szRecvBuff);
 	}
 }
 
@@ -87,4 +92,9 @@ UINT SocketCtrl::LoopReadBuff(LPVOID pParam)
 	SocketCtrl* pDlg = (SocketCtrl*)pParam;
 	pDlg->ReceiveAccept();
 	return 1;
+}
+
+void SocketCtrl::ClearRecvBuff()
+{
+	memset(m_szRecvBuff, 0, 256);
 }

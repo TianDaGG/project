@@ -36,6 +36,9 @@
     <ClInclude Include="SocketCtrl.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="SysTimeStamp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MultiSocketDemo.cpp">
@@ -48,6 +51,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="SocketCtrl.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SysTimeStamp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

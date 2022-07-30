@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include "SocketCtrl.h"
 
 
 // CMultiSocketDemoDlg 对话框
@@ -35,4 +36,7 @@ public:
 	afx_msg void OnBnClickedBtnRun();
 
 	afx_msg LRESULT OnSocketRecv(WPARAM wParam, LPARAM lParam);
+public:
+	SocketCtrl m_sockServer;
+	CListBox m_listLogDisplay;
 };

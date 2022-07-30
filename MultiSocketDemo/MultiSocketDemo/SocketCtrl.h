@@ -8,6 +8,7 @@
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #pragma comment(lib, "Ws2_32.lib")
+#include "SysTimeStamp.h"
 
 
 #define WM_RECVSOCKDATA (WM_USER+100)  
@@ -31,6 +32,10 @@ public:
 	//void SendData();
 public:
 	int m_nType;	//TCP类型
+	char m_szRecvBuff[256];//接收缓存
+	void ClearRecvBuff();
+
+	SysTimeStamp m_sysTimeStamp;//时间戳
 	
 	SOCKET m_sockServer;
 	SOCKET m_sockListen;	//连接的客户端
