@@ -1,16 +1,19 @@
 ﻿
-// MultiSocketDemoDlg.cpp: 实现文件
+// ScocketClientDlg.cpp: 实现文件
 //
 
 #include "pch.h"
 #include "framework.h"
-#include "MultiSocketDemo.h"
-#include "MultiSocketDemoDlg.h"
+#include "ScocketClient.h"
+#include "ScocketClientDlg.h"
 #include "afxdialogex.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+
+
+// 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
 class CAboutDlg : public CDialogEx
 {
@@ -33,33 +36,47 @@ protected:
 CAboutDlg::CAboutDlg() : CDialogEx(IDD_ABOUTBOX)
 {
 }
+
 void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 }
+
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 END_MESSAGE_MAP()
 
-CMultiSocketDemoDlg::CMultiSocketDemoDlg(CWnd* pParent /*=nullptr*/)
-	: CDialogEx(IDD_MULTISOCKETDEMO_DIALOG, pParent)
+
+// CScocketClientDlg 对话框
+
+
+
+CScocketClientDlg::CScocketClientDlg(CWnd* pParent /*=nullptr*/)
+	: CDialogEx(IDD_SCOCKETCLIENT_DIALOG, pParent)
+	, m_strServerIp(_T(""))
+	, m_strServerPort(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
-void CMultiSocketDemoDlg::DoDataExchange(CDataExchange* pDX)
+
+void CScocketClientDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
-	DDX_Control(pDX, IDC_LIST_DISPLAY, m_listLogDisplay);
+	DDX_Text(pDX, IDC_ED_IP, m_strServerIp);
+	DDX_Text(pDX, IDC_ED_PORT, m_strServerPort);
 }
-BEGIN_MESSAGE_MAP(CMultiSocketDemoDlg, CDialogEx)
+
+BEGIN_MESSAGE_MAP(CScocketClientDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	ON_BN_CLICKED(IDC_BTN_RUN, &CMultiSocketDemoDlg::OnBnClickedBtnRun)
-
-	ON_MESSAGE(WM_RECVSOCKDATA, OnSocketRecv)
+	ON_BN_CLICKED(IDC_BTN_CONNECTED, &CScocketClientDlg::OnBnClickedBtnConnected)
+	ON_BN_CLICKED(IDC_BTN_SEND, &CScocketClientDlg::OnBnClickedBtnSend)
 END_MESSAGE_MAP()
 
-BOOL CMultiSocketDemoDlg::OnInitDialog()
+
+// CScocketClientDlg 消息处理程序
+
+BOOL CScocketClientDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 
@@ -80,18 +97,18 @@ BOOL CMultiSocketDemoDlg::OnInitDialog()
 		}
 	}
 
-	// 设置此对话框的图标。  当应用程序主窗口不是对话框时，框架将自动
-	//  执行此操作
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
-	SetDlgItemText(IDC_ED_IP, _T("127.0.0.1"));
-	SetDlgItemText(IDC_ED_PORT, _T("9001"));
+	m_strServerIp = g_iniCfg.ReadIniString(_T("Tcp"),_T("ServerIp"),_T("127.0.0.1"));
+	m_strServerPort = g_iniCfg.ReadIniString(_T("Tcp"), _T("ServerPort"), _T("9001"));
+
 	UpdateData(FALSE);
 
-	return TRUE; 
+	return TRUE;  
 }
-void CMultiSocketDemoDlg::OnSysCommand(UINT nID, LPARAM lParam)
+
+void CScocketClientDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
 	if ((nID & 0xFFF0) == IDM_ABOUTBOX)
 	{
@@ -104,11 +121,8 @@ void CMultiSocketDemoDlg::OnSysCommand(UINT nID, LPARAM lParam)
 	}
 }
 
-// 如果向对话框添加最小化按钮，则需要下面的代码
-//  来绘制该图标。  对于使用文档/视图模型的 MFC 应用程序，
-//  这将由框架自动完成。
 
-void CMultiSocketDemoDlg::OnPaint()
+void CScocketClientDlg::OnPaint()
 {
 	if (IsIconic())
 	{
@@ -135,22 +149,43 @@ void CMultiSocketDemoDlg::OnPaint()
 
 //当用户拖动最小化窗口时系统调用此函数取得光标
 //显示。
-HCURSOR CMultiSocketDemoDlg::OnQueryDragIcon()
+HCURSOR CScocketClientDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-void CMultiSocketDemoDlg::OnBnClickedBtnRun()
+
+
+void CScocketClientDlg::OnBnClickedBtnConnected()
 {
-	m_listLogDisplay.InsertString(0, _T("服务器已启动"));
-	m_sockServer.InitServer(this->GetSafeHwnd(),_T("127.0.0.1"),9001);
+	m_clientCtrl.m_nType = 0;
+	m_clientCtrl.InitClient(m_strServerIp,m_strServerPort);
 }
 
-LRESULT CMultiSocketDemoDlg::OnSocketRecv(WPARAM wParam, LPARAM lParam)
+
+void CScocketClientDlg::OnBnClickedBtnSend()
 {
-	CString strRecv((char*)lParam);
-	CString strFormatTime(m_sockServer.m_sysTimeStamp.GetFormatNowTime().c_str());
-	m_listLogDisplay.InsertString(0, strFormatTime+_T("客户端发来数据:") + strRecv);
-	m_sockServer.ClearRecvBuff();
-	return 1;
+	if (!m_clientCtrl.m_bConnectServ)
+	{
+		AfxMessageBox(_T("服务器未连接"));
+		return;
+	}
+	CString strSend;
+	GetDlgItemText(IDC_ED_SENDMSG, strSend);
+	if (!strSend.IsEmpty())
+	{
+		m_clientCtrl.SendMsg(strSend);
+	}
+	
+}
+
+
+
+void CScocketClientDlg::OnCancel()
+{
+	g_iniCfg.WriteIniString(_T("Tcp"), _T("ServerIp"), m_strServerIp);
+	g_iniCfg.WriteIniString(_T("Tcp"), _T("ServerPort"), m_strServerPort);
+
+
+	CDialogEx::OnCancel();
 }

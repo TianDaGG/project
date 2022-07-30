@@ -15,10 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MultiSocketDemo.h">
+    <ClInclude Include="ScocketClient.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="MultiSocketDemoDlg.h">
+    <ClInclude Include="ScocketClientDlg.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="framework.h">
@@ -33,54 +33,48 @@
     <ClInclude Include="pch.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="SocketCtrl.h">
+    <ClInclude Include="IniConfig.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="SysTimeStamp.h">
+    <ClInclude Include="..\MultiSocketDemo\SocketCtrl.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="EventLoop.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Channel.h">
+    <ClInclude Include="..\MultiSocketDemo\SysTimeStamp.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MultiSocketDemo.cpp">
+    <ClCompile Include="ScocketClient.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="MultiSocketDemoDlg.cpp">
+    <ClCompile Include="ScocketClientDlg.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="SocketCtrl.cpp">
+    <ClCompile Include="IniConfig.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="SysTimeStamp.cpp">
+    <ClCompile Include="..\MultiSocketDemo\SocketCtrl.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="EventLoop.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Channel.cpp">
+    <ClCompile Include="..\MultiSocketDemo\SysTimeStamp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="MultiSocketDemo.rc">
+    <ResourceCompile Include="ScocketClient.rc">
       <Filter>资源文件</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\MultiSocketDemo.rc2">
+    <None Include="res\ScocketClient.rc2">
       <Filter>资源文件</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\MultiSocketDemo.ico">
+    <Image Include="res\ScocketClient.ico">
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>

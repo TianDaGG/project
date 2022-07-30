@@ -4,6 +4,9 @@
 #include "SysTimeStamp.h"
 #include <vcruntime_string.h>
 
+
+
+
 HWND m_hParentWnd;
 
 SocketCtrl::SocketCtrl()
@@ -18,6 +21,10 @@ SocketCtrl::~SocketCtrl()
 void SocketCtrl::InitServer(HWND hParentWnd,CString strIp,int nPort)
 {
 	ClearRecvBuff();
+
+	//server socket 初始化
+
+	//绑定回调函数
 
 	m_hParentWnd = hParentWnd;
 	m_strServerIp = strIp;
@@ -78,13 +85,48 @@ void SocketCtrl::ReceiveAccept()
 	}
 }
 
-void SocketCtrl::InitClient()
+void SocketCtrl::SendMsg(CString strMsg)
 {
-	//初始化Winsock
-	//创建socket
-	//连接服务端
-	//发送和接收数据
-	//断开连接
+	if (m_nType == TCP_CLIENT)
+	{
+		USES_CONVERSION;
+		char* pFileName = T2A(strMsg);
+		int nRet = send(m_sockClient, pFileName, (int)strlen(pFileName), 0);
+		if (nRet == SOCKET_ERROR) {
+			AfxMessageBox(_T("数据发送失败"));
+			return;
+		}
+	}
+}
+
+void SocketCtrl::InitClient(CString strServerIp,CString strPort)
+{
+	m_bConnectServ = FALSE;
+	WSADATA wsadata;
+	if (0 != WSAStartup(MAKEWORD(2, 2), &wsadata))
+	{
+		AfxMessageBox(_T("嵌套字打开失败"));
+		return;
+	}
+	m_sockClient = socket(AF_INET, SOCK_STREAM, 0);
+	if (m_sockClient < 0)
+	{
+		AfxMessageBox(_T("套接字创建失败"));
+		return;
+	}
+
+	SOCKADDR_IN client_in;
+	//client_in.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");//将网络地址字符串转换成二进制形式
+	InetPton(AF_INET, strServerIp, &client_in.sin_addr);
+	client_in.sin_family = AF_INET;
+	client_in.sin_port = htons(_ttoi(strPort));
+
+	if (connect(m_sockClient, (SOCKADDR*)&client_in, sizeof(SOCKADDR)) == SOCKET_ERROR)
+	{
+		AfxMessageBox(_T("套接字连接失败"));
+		return;
+	}
+	m_bConnectServ = TRUE;
 }
 
 UINT SocketCtrl::LoopReadBuff(LPVOID pParam)

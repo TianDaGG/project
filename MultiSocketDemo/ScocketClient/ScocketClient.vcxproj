@@ -20,9 +20,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
-    <ProjectGuid>{EF9C5098-5A84-4AC1-BF7F-033C9277B33A}</ProjectGuid>
+    <ProjectGuid>{4714591D-39A7-443E-AB9D-FFCC63770D4E}</ProjectGuid>
     <Keyword>MFCProj</Keyword>
-    <RootNamespace>MultiSocketDemo</RootNamespace>
+    <RootNamespace>ScocketClient</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -183,39 +183,37 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Channel.h" />
-    <ClInclude Include="EventLoop.h" />
+    <ClInclude Include="..\MultiSocketDemo\SocketCtrl.h" />
+    <ClInclude Include="..\MultiSocketDemo\SysTimeStamp.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="MultiSocketDemo.h" />
-    <ClInclude Include="MultiSocketDemoDlg.h" />
+    <ClInclude Include="IniConfig.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="SocketCtrl.h" />
-    <ClInclude Include="SysTimeStamp.h" />
+    <ClInclude Include="ScocketClient.h" />
+    <ClInclude Include="ScocketClientDlg.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Channel.cpp" />
-    <ClCompile Include="EventLoop.cpp" />
-    <ClCompile Include="MultiSocketDemo.cpp" />
-    <ClCompile Include="MultiSocketDemoDlg.cpp" />
+    <ClCompile Include="..\MultiSocketDemo\SocketCtrl.cpp" />
+    <ClCompile Include="..\MultiSocketDemo\SysTimeStamp.cpp" />
+    <ClCompile Include="IniConfig.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="SocketCtrl.cpp" />
-    <ClCompile Include="SysTimeStamp.cpp" />
+    <ClCompile Include="ScocketClient.cpp" />
+    <ClCompile Include="ScocketClientDlg.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="MultiSocketDemo.rc" />
+    <ResourceCompile Include="ScocketClient.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\MultiSocketDemo.rc2" />
+    <None Include="res\ScocketClient.rc2" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\MultiSocketDemo.ico" />
+    <Image Include="res\ScocketClient.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

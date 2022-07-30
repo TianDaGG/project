@@ -5,6 +5,7 @@
 		提供socket的并发连接管理
 		没有文件操作，全部数据在内存处理
 */
+
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #pragma comment(lib, "Ws2_32.lib")
@@ -25,7 +26,8 @@ public:
 	};
 	void InitServer(HWND hParentWnd, CString strIp, int nPort);
 	void ReceiveAccept();
-	void InitClient();
+	void SendMsg(CString strMsg);
+	void InitClient(CString strServerIp, CString strPort);
 
 	static UINT LoopReadBuff(LPVOID pParam);
 
@@ -41,6 +43,9 @@ public:
 	SOCKET m_sockListen;	//连接的客户端
 	CString m_strServerIp;
 	int		m_nServerPort;
+
+	SOCKET m_sockClient;//客户端
+	BOOL m_bConnectServ;//是否连接服务器
 
 };
 
