@@ -148,9 +148,25 @@ void CMultiSocketDemoDlg::OnBnClickedBtnRun()
 
 LRESULT CMultiSocketDemoDlg::OnSocketRecv(WPARAM wParam, LPARAM lParam)
 {
-	CString strRecv((char*)lParam);
-	CString strFormatTime(m_sockServer.m_sysTimeStamp.GetFormatNowTime().c_str());
-	m_listLogDisplay.InsertString(0, strFormatTime+_T("客户端发来数据:") + strRecv);
-	m_sockServer.ClearRecvBuff();
+	int nSignal = (int)wParam;
+	if (nSignal == WM_SOCKETACCEPT)
+	{
+		CString strRecv((char*)lParam);
+		CString strFormatTime(m_sockServer.m_sysTimeStamp.GetFormatNowTime().c_str());
+		m_listLogDisplay.InsertString(0, strFormatTime + _T("客户端接入") + strRecv);
+	}
+	else if (nSignal == WM_SOCKETRECV)
+	{
+		CString strRecv((char*)lParam);
+		CString strFormatTime(m_sockServer.m_sysTimeStamp.GetFormatNowTime().c_str());
+		m_listLogDisplay.InsertString(0, strFormatTime + _T("客户端发来数据:") + strRecv);
+		m_sockServer.ClearRecvBuff();
+	}
+	else if (nSignal == WM_SOCKETCLOSE)
+	{
+		CString strRecv((char*)lParam);
+		CString strFormatTime(m_sockServer.m_sysTimeStamp.GetFormatNowTime().c_str());
+		m_listLogDisplay.InsertString(0, strFormatTime + _T("客户端断开") + strRecv);
+	}
 	return 1;
 }

@@ -36,9 +36,11 @@ protected:
 public:
 	afx_msg void OnBnClickedBtnConnected();
 	afx_msg void OnBnClickedBtnSend();
+	afx_msg LRESULT OnSocketRecv(WPARAM wParam, LPARAM lParam);
 public:
 	CString m_strServerIp;
 	CString m_strServerPort;
 	BOOL m_bConnect;
 	SocketCtrl m_clientCtrl;
+	CListBox m_listDisplay;
 };

@@ -183,8 +183,6 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Channel.h" />
-    <ClInclude Include="EventLoop.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="MultiSocketDemo.h" />
     <ClInclude Include="MultiSocketDemoDlg.h" />
@@ -195,8 +193,6 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Channel.cpp" />
-    <ClCompile Include="EventLoop.cpp" />
     <ClCompile Include="MultiSocketDemo.cpp" />
     <ClCompile Include="MultiSocketDemoDlg.cpp" />
     <ClCompile Include="pch.cpp">

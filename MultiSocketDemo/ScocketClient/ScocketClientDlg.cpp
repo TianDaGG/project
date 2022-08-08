@@ -63,6 +63,7 @@ void CScocketClientDlg::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_ED_IP, m_strServerIp);
 	DDX_Text(pDX, IDC_ED_PORT, m_strServerPort);
+	DDX_Control(pDX, IDC_LIST_DISPLAYLOG, m_listDisplay);
 }
 
 BEGIN_MESSAGE_MAP(CScocketClientDlg, CDialogEx)
@@ -71,6 +72,8 @@ BEGIN_MESSAGE_MAP(CScocketClientDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BTN_CONNECTED, &CScocketClientDlg::OnBnClickedBtnConnected)
 	ON_BN_CLICKED(IDC_BTN_SEND, &CScocketClientDlg::OnBnClickedBtnSend)
+
+	ON_MESSAGE(WM_RECVSOCKDATA, OnSocketRecv)
 END_MESSAGE_MAP()
 
 
@@ -188,4 +191,12 @@ void CScocketClientDlg::OnCancel()
 
 
 	CDialogEx::OnCancel();
+}
+LRESULT CScocketClientDlg::OnSocketRecv(WPARAM wParam, LPARAM lParam)
+{
+	CString strRecv((char*)lParam);
+	CString strFormatTime(m_clientCtrl.m_sysTimeStamp.GetFormatNowTime().c_str());
+	m_listDisplay.InsertString(0, strFormatTime + _T("服务器发来数据:") + strRecv);
+	m_clientCtrl.ClearRecvBuff();
+	return 1;
 }
