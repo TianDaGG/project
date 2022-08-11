@@ -11,13 +11,14 @@ HWND m_hParentWnd;
 
 SocketCtrl::SocketCtrl()
 {
+	WSADATA wsadata;
+	::WSAStartup(MAKEWORD(2, 2), &wsadata);
 }
 
 SocketCtrl::~SocketCtrl()
 {
-	WSACleanup();
+	::WSACleanup();
 }
-
 void SocketCtrl::InitServer(HWND hParentWnd,CString strIp,int nPort)
 {
 	m_nType = TCP_SERVER;
@@ -26,9 +27,6 @@ void SocketCtrl::InitServer(HWND hParentWnd,CString strIp,int nPort)
 	m_hParentWnd = hParentWnd;
 	m_strServerIp = strIp;
 	m_nServerPort = nPort;
-	//初始化Winsock
-	WSADATA wsaData;
-	::WSAStartup(MAKEWORD(2, 2), &wsaData);
 
 	//创建socket
 	m_sockServer = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -49,54 +47,25 @@ void SocketCtrl::InitServer(HWND hParentWnd,CString strIp,int nPort)
 	//接受客户端连接请求
 	AfxBeginThread(Accept, this);
 	AfxBeginThread(Loop, this);
-
 }
-
 void SocketCtrl::SendMsg(CString strMsg)
 {
 	if (m_nType == TCP_CLIENT)
 	{
 		USES_CONVERSION;
 		char* pFileName = T2A(strMsg);
-		int nRet = send(m_sockClient, pFileName, (int)strlen(pFileName), 0);
-		if (nRet == SOCKET_ERROR) {
+		int nRet = ::send(m_sockClient, pFileName, (int)strlen(pFileName), 0);
+		if (nRet == SOCKET_ERROR)
+		{
 			AfxMessageBox(_T("数据发送失败"));
 			return;
 		}
 	}
+	else if (m_nType == TCP_SERVER)
+	{
+
+	}
 }
-
-void SocketCtrl::InitClient(CString strServerIp,CString strPort)
-{
-	m_nType = TCP_CLIENT;
-	m_bConnectServ = FALSE;
-	WSADATA wsadata;
-	if (0 != WSAStartup(MAKEWORD(2, 2), &wsadata))
-	{
-		AfxMessageBox(_T("嵌套字打开失败"));
-		return;
-	}
-	m_sockClient = socket(AF_INET, SOCK_STREAM, 0);
-	if (m_sockClient < 0)
-	{
-		AfxMessageBox(_T("套接字创建失败"));
-		return;
-	}
-
-	SOCKADDR_IN client_in;
-	//client_in.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");//将网络地址字符串转换成二进制形式
-	InetPton(AF_INET, strServerIp, &client_in.sin_addr);
-	client_in.sin_family = AF_INET;
-	client_in.sin_port = htons(_ttoi(strPort));
-
-	if (connect(m_sockClient, (SOCKADDR*)&client_in, sizeof(SOCKADDR)) == SOCKET_ERROR)
-	{
-		AfxMessageBox(_T("套接字连接失败"));
-		return;
-	}
-	m_bConnectServ = TRUE;
-}
-
 UINT SocketCtrl::Accept(LPVOID pParam)
 {
 	SocketCtrl* pDlg = (SocketCtrl*)pParam;
@@ -104,14 +73,24 @@ UINT SocketCtrl::Accept(LPVOID pParam)
 	{
 		SOCKADDR clientAddr;
 		int nSize = sizeof(SOCKADDR);
-		SOCKET sockListen = accept(pDlg->m_sockServer, (SOCKADDR*)&clientAddr, &nSize);
-		//INVALID_SOCKET
-		//FD_SET
+		SOCKET sockListen = ::accept(pDlg->m_sockServer, (SOCKADDR*)&clientAddr, &nSize);
 		if (INVALID_SOCKET != sockListen)
 		{
 			bool bFound = (std::find(pDlg->m_sockList.begin(), pDlg->m_sockList.end(), sockListen) != pDlg->m_sockList.end());
 			if (!bFound)
 			{
+				{
+					sockaddr_in addr;
+					memcpy(&addr, &clientAddr, sizeof(addr));
+					char buf[32] = {0,};
+					pDlg->toIp(buf, 32, addr);
+					int nPort = ntohs(addr.sin_port);
+					CString strLog;
+					CString strIp(buf);
+					strLog.Format(_T("%s:%d"), strIp,nPort);
+					//AfxMessageBox(strLog);
+				}
+
 				char szAccept[5] = {0};
 				sprintf_s(szAccept,5, "%d", (size_t)sockListen);
 				PostMessage(m_hParentWnd, WM_RECVSOCKDATA, (WPARAM)WM_SOCKETACCEPT, (LPARAM)szAccept);
@@ -124,7 +103,6 @@ UINT SocketCtrl::Accept(LPVOID pParam)
 	
 	return 1;
 }
-
 UINT SocketCtrl::Loop(LPVOID pParam)
 {
 	SocketCtrl* pDlg = (SocketCtrl*)pParam;
@@ -145,11 +123,8 @@ UINT SocketCtrl::Loop(LPVOID pParam)
 				FD_SET((*iter), &fdRead);
 			}
 			nRet = select(0, &fdRead, NULL, NULL, &tv);
-
 			if (nRet == 0)
-			{
 				continue;
-			}
 
 			for (std::list<SOCKET>::iterator iter = pDlg->m_sockList.begin(); iter != pDlg->m_sockList.end(); ++iter)
 			{
@@ -199,11 +174,45 @@ UINT SocketCtrl::Loop(LPVOID pParam)
 			}
 		}
 	}
-	
 	return TRUE;
 }
-
 void SocketCtrl::ClearRecvBuff()
 {
 	memset(m_szRecvBuff, 0, 256);
+}
+
+
+
+void SocketCtrl::toIp(char* buf, size_t nSize, const struct sockaddr_in& addr)
+{
+
+	::inet_ntop(AF_INET, &addr.sin_addr, buf, nSize);
+	int a = 0;
+}
+
+
+void SocketCtrl::InitClient(CString strServerIp, CString strPort)
+{
+	m_nType = TCP_CLIENT;
+	m_bConnectServ = FALSE;
+
+	m_sockClient = socket(AF_INET, SOCK_STREAM, 0);
+	if (m_sockClient < 0)
+	{
+		AfxMessageBox(_T("套接字创建失败"));
+		return;
+	}
+
+	SOCKADDR_IN client_in;
+	//client_in.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");//将网络地址字符串转换成二进制形式
+	InetPton(AF_INET, strServerIp, &client_in.sin_addr);
+	client_in.sin_family = AF_INET;
+	client_in.sin_port = htons(_ttoi(strPort));
+
+	if (connect(m_sockClient, (SOCKADDR*)&client_in, sizeof(SOCKADDR)) == SOCKET_ERROR)
+	{
+		AfxMessageBox(_T("套接字连接失败"));
+		return;
+	}
+	m_bConnectServ = TRUE;
 }

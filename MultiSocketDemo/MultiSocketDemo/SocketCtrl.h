@@ -51,6 +51,8 @@ public:
 	int		m_nServerPort;	//
 	typedef std::function<void()> EventCallback;
 	std::list<SOCKET> m_sockList;
+	void toIp(char* buf, size_t size, const struct sockaddr_in& addr);
+
 	/*
 		Client ±äÁ¿¡¢º¯Êý
 	*/

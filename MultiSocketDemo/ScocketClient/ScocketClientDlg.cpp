@@ -163,6 +163,7 @@ void CScocketClientDlg::OnBnClickedBtnConnected()
 {
 	m_clientCtrl.m_nType = 0;
 	m_clientCtrl.InitClient(m_strServerIp,m_strServerPort);
+	GetDlgItem(IDC_BTN_CONNECTED)->EnableWindow(!m_clientCtrl.m_bConnectServ);
 }
 
 
